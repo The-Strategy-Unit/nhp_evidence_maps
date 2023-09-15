@@ -9,11 +9,9 @@
 #' @importFrom shiny NS tagList 
 #' 
 
-covid_data_search <- readxl::read_excel("inst/app/data/example_long_cvd.xlsx",
-                                 sheet = "Understanding the condition"
-                                 ) |>
-  dplyr::select(Author, Title, Year, Link) |>
-  dplyr::group_by(Author, Title, Year, Link) |> 
+search_data <- readRDS('inst/app/data/tmp_data.rds') |>
+  dplyr::select(Citation, `Publication year`, Link) |>
+  dplyr::group_by(Citation, `Publication year`, Link) |> 
   dplyr::summarise(tmp = dplyr::n()) |> 
   dplyr::select(-tmp) |> 
   dplyr::mutate(
@@ -22,12 +20,12 @@ covid_data_search <- readxl::read_excel("inst/app/data/example_long_cvd.xlsx",
     
   
   
-covid_string_split <- covid_data_search |> 
-  dplyr::mutate(search_string = paste(Author, Title, Year)) |> 
-  dplyr::select(id, search_string) |> 
-  tidyr::separate_longer_delim(search_string, delim = " ") |> 
+data_string_split <- search_data |>
+  dplyr::mutate(search_string = paste(Citation, `Publication year`)) |>
+  dplyr::select(id, search_string) |>
+  tidyr::separate_longer_delim(search_string, delim = " ") |>
   dplyr::mutate(search_string = stringr::str_remove_all(search_string,"[^A-Za-z]"),
-                search_string = stringr::str_to_lower(search_string)) |> 
+                search_string = stringr::str_to_lower(search_string)) |>
   dplyr::filter(!search_string == "")
 
 
@@ -61,39 +59,39 @@ mod_search_server <- function(id){
     #   dist_val <- input$dist
     #   })
     
-    observe({input$search_search
+    # observe({input$search_search
+    #   
+    #   req(dist_val)
+    #   
+    #   s <- stringr::str_split(input$search, " ")[[1]] |>
+    #     stringr::str_remove_all("[^A-Za-z]") |>
+    #     stringr::str_to_lower() |>
+    #     purrr::discard(~.x == "")
+    #   
       
-      req(dist_val)
+      # f <- \(text) purrr::some(s, ~min(stringdist::stringdist(.x, text)) <= dist_val())
+      # 
+      # matches <- unique(search_data[purrr::map_lgl(data_string_split[["search_string"]], f),]$id)
+      # 
+      # d <- search_data |> dplyr::filter(id %in% matches) |> 
+      #   dplyr::select(-id)
       
-      s <- stringr::str_split(input$search, " ")[[1]] |>
-        stringr::str_remove_all("[^A-Za-z]") |>
-        stringr::str_to_lower() |>
-        purrr::discard(~.x == "")
-      
-      
-      f <- \(text) purrr::some(s, ~min(stringdist::stringdist(.x, text)) <= dist_val())
-      
-      matches <- unique(covid_string_split[purrr::map_lgl(covid_string_split[["search_string"]], f),]$id)
-      
-      d <- covid_data_search |> dplyr::filter(id %in% matches) |> 
-        dplyr::select(-id)
-      
-      output$search_table <- DT::renderDT(d,
-                                          options = list(
-                                            dom = "t",
-                                            ordering = F
-                                          ),
-                                          escape = F,
-                                          rownames = F,
-                                          selection = "none")
-      
-      
-    })
+    #   output$search_table <- DT::renderDT(d,
+    #                                       options = list(
+    #                                         dom = "t",
+    #                                         ordering = F
+    #                                       ),
+    #                                       escape = F,
+    #                                       rownames = F,
+    #                                       selection = "none")
+    #   
+    #   
+    # })
     
     
     observe({input$search_reset
       
-      output$search_table <- DT::renderDT(covid_data_search,
+      output$search_table <- DT::renderDT(search_data,
                                           options = list(
                                             dom = "ltip",
                                             

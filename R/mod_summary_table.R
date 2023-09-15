@@ -8,9 +8,7 @@
 #'
 #' @importFrom shiny NS tagList
 
-covid_data <- readxl::read_excel("inst/app/data/example_long_cvd.xlsx",
-  sheet = "Understanding the condition"
-) |>
+data <- readRDS('inst/app/data/tmp_data.rds') |> 
   dplyr::mutate(
     id = dplyr::row_number(),
     Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>")
@@ -22,7 +20,9 @@ mod_summary_table_ui <- function(id) {
   shiny::fluidPage(
     shiny::selectInput(ns("yearSelect"), 
                        label = "Select Year", 
-                       choices = c("All Years", unique(covid_data$Year))),
+                       choices = c("All Years", 
+                                   stringr::str_sort(unique(data$`Publication year`),
+                                                 decreasing = T))),
       shiny::fluidRow(
         column(width = 8, DT::DTOutput(ns("summary"))),
         column(width = 4, shiny::plotOutput(ns("waffle")))
@@ -46,12 +46,12 @@ mod_summary_table_server <- function(id) {
 
     summary_data <- reactive({
       shiny::req(selectedYear())
-      covid_data |>
-        dplyr::filter(Year == selectedYear() | selectedYear() == "All Years") |>
-        dplyr::select(Theme, `Evidence Group`) |>
-        dplyr::group_by(Theme, `Evidence Group`) |>
+      data |>
+        dplyr::filter(`Publication year` == selectedYear() | selectedYear() == "All Years") |>
+        dplyr::select(Mechanism, `Type of evidence`) |>
+        dplyr::group_by(Mechanism, `Type of evidence`) |>
         dplyr::summarise(count = dplyr::n()) |>
-        tidyr::pivot_wider(names_from = `Evidence Group`, values_from = count) |>
+        tidyr::pivot_wider(names_from = `Type of evidence`, values_from = count) |>
         dplyr::ungroup() |>
         dplyr::mutate(id = dplyr::row_number())
     })
@@ -59,9 +59,9 @@ mod_summary_table_server <- function(id) {
     
     waffle_data <- reactive({
       shiny::req(selectedYear())
-      covid_data |>
-        dplyr::filter(Year == selectedYear() | selectedYear() == "All Years") |>
-        dplyr::select(Theme, `Evidence Group`)
+      data |>
+        dplyr::filter(`Publication year` == selectedYear() | selectedYear() == "All Years") |>
+        dplyr::select(Mechanism, `Type of evidence`)
     })
     
     #output$waffle <- shiny::renderPlot(
@@ -103,15 +103,15 @@ mod_summary_table_server <- function(id) {
       row <- index[[1]]
       col <- index[[2]] + 1
 
-      row_selected <- summary_data()$Theme[row]
+      row_selected <- summary_data()$Mechanism[row]
       col_selected <- names(summary_data()[col])
 
-      summary_selected <- covid_data |>
+      summary_selected <- data |>
         dplyr::filter(
-          Theme == row_selected,
-          `Evidence Group` == col_selected
+          Mechanism == row_selected,
+          `Type of evidence` == col_selected
         ) |>
-        dplyr::select(Author, Title, Year, Link)
+        dplyr::select(Citation, `Publication year`, Link)
 
       output$selectedTable <- DT::renderDT(summary_selected,
                                            options = list(
@@ -126,9 +126,9 @@ mod_summary_table_server <- function(id) {
       output$waffle <- shiny::renderPlot({
         
         filtered_waffle_data <- waffle_data()|>
-          dplyr::filter(Theme == row_selected) |> 
+          dplyr::filter(Mechanism == row_selected) |> 
           ggwaffle::waffle_iron(
-            ggwaffle::aes_d(group = 'Evidence Group')) |> 
+            ggwaffle::aes_d(group = 'Type of evidence')) |> 
           dplyr::mutate(selected = ifelse(group == col_selected, T, F))
         
         shiny::req(filtered_waffle_data)
