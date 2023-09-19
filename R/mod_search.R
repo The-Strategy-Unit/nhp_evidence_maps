@@ -13,7 +13,8 @@ search_data <- readRDS('inst/app/data/tmp_data.rds') |>
   dplyr::select(Citation, `Publication year`, Link) |>
   dplyr::group_by(Citation, `Publication year`, Link) |> 
   dplyr::summarise(tmp = dplyr::n()) |> 
-  dplyr::select(-tmp) |> 
+  dplyr::select(-tmp) |>
+  dplyr::ungroup() |> 
   dplyr::mutate(
     id = dplyr::row_number(),
     Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>"))
@@ -21,6 +22,7 @@ search_data <- readRDS('inst/app/data/tmp_data.rds') |>
   
   
 data_string_split <- search_data |>
+  #dplyr::ungroup() |> 
   dplyr::mutate(search_string = paste(Citation, `Publication year`)) |>
   dplyr::select(id, search_string) |>
   tidyr::separate_longer_delim(search_string, delim = " ") |>
@@ -34,15 +36,17 @@ mod_search_ui <- function(id){
   
   
   shiny::tagList(
-    #shiny::numericInput('dist', 
-     #                   label = 'Search string distance',
-      #                  value = 1),
+    shiny::numericInput(ns('dist'),
+                      label = 'Search string distance',
+                     value = 1),
     shinyWidgets::searchInput(ns("search"),
                               label = "Search Evidence",
                               placeholder = "Search..",
                               btnSearch = icon("magnifying-glass"),
                               btnReset = icon("xmark")),
+    shiny::verbatimTextOutput(ns('debug'), placeholder = T),
     DT::DTOutput(ns("search_table"))
+    
   )
 }
     
@@ -53,40 +57,42 @@ mod_search_server <- function(id){
   shiny::moduleServer(id, function(input, output, session){
     ns <- session$ns
     
-    dist_val <- reactive(1)
+    dist_val <- reactive(input$dist)
+    
+    output$debug <- shiny::renderPrint(dist_val())
     
     # observe({input$dist
-    #   dist_val <- input$dist
+    #   dist_val <- reactive(input$dist)
     #   })
-    
-    # observe({input$search_search
-    #   
-    #   req(dist_val)
-    #   
-    #   s <- stringr::str_split(input$search, " ")[[1]] |>
-    #     stringr::str_remove_all("[^A-Za-z]") |>
-    #     stringr::str_to_lower() |>
-    #     purrr::discard(~.x == "")
-    #   
+
+    observe({input$search_search
+
+      req(dist_val)
+
+      s <- stringr::str_split(input$search, " ")[[1]] |>
+        stringr::str_remove_all("[^A-Za-z]") |>
+        stringr::str_to_lower() |>
+        purrr::discard(~.x == "")
+
       
-      # f <- \(text) purrr::some(s, ~min(stringdist::stringdist(.x, text)) <= dist_val())
-      # 
-      # matches <- unique(search_data[purrr::map_lgl(data_string_split[["search_string"]], f),]$id)
-      # 
-      # d <- search_data |> dplyr::filter(id %in% matches) |> 
-      #   dplyr::select(-id)
+      f <- \(text) purrr::some(s, ~min(stringdist::stringdist(.x, text)) <= dist_val())
+
+      matches <- unique(data_string_split[purrr::map_lgl(data_string_split[["search_string"]], f),]$id)
+
+      d <- search_data |> dplyr::filter(id %in% matches) |>
+        dplyr::select(-id)
       
-    #   output$search_table <- DT::renderDT(d,
-    #                                       options = list(
-    #                                         dom = "t",
-    #                                         ordering = F
-    #                                       ),
-    #                                       escape = F,
-    #                                       rownames = F,
-    #                                       selection = "none")
-    #   
-    #   
-    # })
+      output$search_table <- DT::renderDT(d,
+                                          options = list(
+                                            dom = "t",
+                                            ordering = F
+                                          ),
+                                          escape = F,
+                                          rownames = F,
+                                          selection = "none")
+
+
+    })
     
     
     observe({input$search_reset
