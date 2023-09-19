@@ -22,7 +22,6 @@ search_data <- readRDS('inst/app/data/tmp_data.rds') |>
   
   
 data_string_split <- search_data |>
-  #dplyr::ungroup() |> 
   dplyr::mutate(search_string = paste(Citation, `Publication year`)) |>
   dplyr::select(id, search_string) |>
   tidyr::separate_longer_delim(search_string, delim = " ") |>
@@ -60,10 +59,6 @@ mod_search_server <- function(id){
     dist_val <- reactive(input$dist)
     
     output$debug <- shiny::renderPrint(dist_val())
-    
-    # observe({input$dist
-    #   dist_val <- reactive(input$dist)
-    #   })
 
     observe({input$search_search
 
