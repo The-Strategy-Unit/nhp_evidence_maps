@@ -23,13 +23,26 @@ mod_summary_table_ui <- function(id) {
                        choices = c("All Years", 
                                    stringr::str_sort(unique(data$`Publication year`),
                                                  decreasing = T))),
+    shiny::selectInput(ns("varSelect"),
+                       label = "Additional Variables",
+                       choices = c("Choose additional variables" = "",
+                                   "Country of study",
+                                   "Study design",
+                                   "Effect",
+                                   "Setting",
+                                   "Demographic",
+                                   "No variable selected" = "no_value"
+                                   ),
+                       #selected = "Choose additional variables",
+                       multiple = T),
       shiny::fluidRow(
         column(width = 8, DT::DTOutput(ns("summary"))),
         column(width = 4, shiny::plotOutput(ns("waffle")))
       ),
     shiny::verbatimTextOutput(ns("debug")),
+    shiny::verbatimTextOutput(ns("debugVarSelect")),
+    DT::DTOutput(ns("debugData")),
     DT::DTOutput(ns("selectedTable"))
-    #)
     )
 }
 
@@ -42,12 +55,32 @@ mod_summary_table_server <- function(id) {
 
     selectedYear <- reactive(input$yearSelect)
 
+    selectedVars <- reactive(input$varSelect)
+    
+    
+    
     output$debug <- shiny::renderPrint(selectedYear())
+    output$debugVarSelect <- shiny::renderPrint(selectedVars())
+    #output$debugData <- DT::renderDT(summary_tab_data())
 
-    summary_data <- reactive({
-      shiny::req(selectedYear())
+    
+    summary_tab_data <- reactive({
+      #shiny::req(selectedYear())
       data |>
         dplyr::filter(`Publication year` == selectedYear() | selectedYear() == "All Years") |>
+        dplyr::select(Mechanism,
+                      `Type of evidence`,
+                      Citation,
+                      `Publication year`,
+                      Link,
+                      input$varSelect)|>
+        dplyr::distinct()
+    })
+    
+    
+    evidence_map_data <- reactive({
+      #shiny::req()
+      summary_tab_data() |>
         dplyr::select(Mechanism, `Type of evidence`) |>
         dplyr::group_by(Mechanism, `Type of evidence`) |>
         dplyr::summarise(count = dplyr::n()) |>
@@ -58,32 +91,13 @@ mod_summary_table_server <- function(id) {
     
     
     waffle_data <- reactive({
-      shiny::req(selectedYear())
-      data |>
-        dplyr::filter(`Publication year` == selectedYear() | selectedYear() == "All Years") |>
+      shiny::req(summary_tab_data())
+      summary_tab_data() |>
         dplyr::select(Mechanism, `Type of evidence`)
     })
-    
-    #output$waffle <- shiny::renderPlot(
-      
-      
-      # summary_data |> #()
-      #   tidyr::pivot_longer(-Theme, 
-      #                names_to = 'Evidence Type', 
-      #                values_to = 'Count') |>
-      #   dplyr::filter(Theme == 'Causes') |> 
-      #   ggplot2::ggplot(ggplot2::aes(fill = `Evidence Type`, values = Count))+
-      #   waffle::geom_waffle(na.rm = T, 
-      #                       color = 'white',
-      #                       n_rows = 6)#+
-      #   ggplot2::facet_wrap(~`Theme`)
-        
-        
-    #)
-
 
     output$summary <- DT::renderDT(
-      summary_data() |>
+      evidence_map_data() |>
         dplyr::select(-id),
       options = list(
         dom = "t",
@@ -96,22 +110,30 @@ mod_summary_table_server <- function(id) {
       rownames = F
     )
 
+    # summary_tab_data <- reactive({
+    #   summary_tab_data()
+    # })
+    
+    selected_tab_data <- reactive({
+      summary_tab_data()
+    })
 
-    shiny::observeEvent(input$summary_cells_selected, {
+    shiny::observe({
+      shiny::req(summary_tab_data(), input$summary_cells_selected)
       index <- shiny::req(input$summary_cells_selected)
 
       row <- index[[1]]
       col <- index[[2]] + 1
 
-      row_selected <- summary_data()$Mechanism[row]
-      col_selected <- names(summary_data()[col])
+      row_selected <- evidence_map_data()$Mechanism[row]
+      col_selected <- names(evidence_map_data()[col])
 
-      summary_selected <- data |>
+      summary_selected <- summary_tab_data() |> 
         dplyr::filter(
           Mechanism == row_selected,
           `Type of evidence` == col_selected
-        ) |>
-        dplyr::select(Citation, `Publication year`, Link)
+          ) |> 
+        dplyr::select(-Mechanism, -`Type of evidence`)
 
       output$selectedTable <- DT::renderDT(summary_selected,
                                            options = list(
