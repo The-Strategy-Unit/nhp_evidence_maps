@@ -81,11 +81,14 @@ mod_summary_table_server <- function(id) {
     
     evidence_map_data <- reactive({
       shiny::req(summary_tab_data())
-      summary_tab_data() |>
+      skeleton |> dplyr::left_join(
+        summary_tab_data() |>
         dplyr::select(Mechanism, `Type of evidence`) |>
         dplyr::group_by(Mechanism, `Type of evidence`) |>
-        dplyr::summarise(count = dplyr::n()) |>
-        tidyr::pivot_wider(names_from = `Type of evidence`, values_from = count) |>
+        dplyr::summarise(count = dplyr::n())) |>
+        tidyr::pivot_wider(
+          names_from = `Type of evidence`,
+          values_from = count) |> 
         dplyr::ungroup() |>
         dplyr::mutate(id = dplyr::row_number())
     })
@@ -98,10 +101,8 @@ mod_summary_table_server <- function(id) {
     })
 
     output$summary <- DT::renderDT(
-      skeleton |> dplyr::left_join(evidence_map_data() |>
-                                     tidyr::pivot_wider(
-                                       names_from = `Type of evidence`,
-                                       values_from = count)),
+      evidence_map_data() |>
+        dplyr::select(-id),
       options = list(
         dom = "t",
         ordering = F
