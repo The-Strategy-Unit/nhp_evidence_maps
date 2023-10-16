@@ -33,7 +33,7 @@ mod_summary_table_ui <- function(id) {
                                    "Demographic",
                                    "No variable selected" = "no_value"
                                    ),
-                       #selected = "Choose additional variables",
+                       selected = "",
                        multiple = T),
       shiny::fluidRow(
         column(width = 8, DT::DTOutput(ns("summary"))),
@@ -54,32 +54,29 @@ mod_summary_table_server <- function(id) {
     ns <- session$ns
 
     selectedYear <- reactive(input$yearSelect)
-
-    selectedVars <- reactive(input$varSelect)
-    
     
     
     output$debug <- shiny::renderPrint(selectedYear())
-    output$debugVarSelect <- shiny::renderPrint(selectedVars())
-    #output$debugData <- DT::renderDT(summary_tab_data())
+    
+    
 
     
     summary_tab_data <- reactive({
-      #shiny::req(selectedYear())
+      shiny::req(selectedYear())
       data |>
         dplyr::filter(`Publication year` == selectedYear() | selectedYear() == "All Years") |>
-        dplyr::select(Mechanism,
-                      `Type of evidence`,
-                      Citation,
-                      `Publication year`,
-                      Link,
-                      input$varSelect)|>
+        dplyr::select(any_of(c("Mechanism",
+                               "Type of evidence",
+                               "Citation",
+                               "Publication year",
+                               "Link",
+                               input$varSelect)))|>
         dplyr::distinct()
     })
     
     
     evidence_map_data <- reactive({
-      #shiny::req()
+      shiny::req(summary_tab_data())
       summary_tab_data() |>
         dplyr::select(Mechanism, `Type of evidence`) |>
         dplyr::group_by(Mechanism, `Type of evidence`) |>
@@ -110,16 +107,13 @@ mod_summary_table_server <- function(id) {
       rownames = F
     )
 
-    # summary_tab_data <- reactive({
-    #   summary_tab_data()
-    # })
     
     selected_tab_data <- reactive({
       summary_tab_data()
     })
 
     shiny::observe({
-      shiny::req(summary_tab_data(), input$summary_cells_selected)
+      shiny::req(evidence_map_data())
       index <- shiny::req(input$summary_cells_selected)
 
       row <- index[[1]]
