@@ -58,19 +58,23 @@ mod_summary_table_server <- function(id) {
     
     output$debug <- shiny::renderPrint(selectedYear())
     
-    
+    evidence_map_skeleton <- data |>
+      dplyr::select(Mechanism, `Type of evidence`) |>
+      dplyr::group_by(Mechanism, `Type of evidence`) |>
+      dplyr::summarise(count = dplyr::n()) |>
+      dplyr::select(-count)
 
     
     summary_tab_data <- reactive({
       shiny::req(selectedYear())
       data |>
         dplyr::filter(`Publication year` == selectedYear() | selectedYear() == "All Years") |>
-        dplyr::select(any_of(c("Mechanism",
-                               "Type of evidence",
-                               "Citation",
-                               "Publication year",
-                               "Link",
-                               input$varSelect)))|>
+        dplyr::select(tidyselect::any_of(c("Mechanism",
+                                           "Type of evidence",
+                                           "Citation",
+                                           "Publication year",
+                                           "Link",
+                                           input$varSelect)))|>
         dplyr::distinct()
     })
     
@@ -94,8 +98,10 @@ mod_summary_table_server <- function(id) {
     })
 
     output$summary <- DT::renderDT(
-      evidence_map_data() |>
-        dplyr::select(-id),
+      skeleton |> dplyr::left_join(evidence_map_data() |>
+                                     tidyr::pivot_wider(
+                                       names_from = `Type of evidence`,
+                                       values_from = count)),
       options = list(
         dom = "t",
         ordering = F
