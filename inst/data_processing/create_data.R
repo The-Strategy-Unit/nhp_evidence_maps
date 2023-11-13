@@ -17,7 +17,7 @@ studies <- readxl::read_xlsx('inst/app/data/230808 test map.xlsx',
   dplyr::filter(stringr::str_detect(`Unique ref no`, '[:number:]'))
 
 
-#saveRDS(syntheses, 'inst/app/data/tmp_data.rds')
+saveRDS(syntheses, 'inst/app/data/tmp_data.rds')
 
 
 
