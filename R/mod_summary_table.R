@@ -8,11 +8,13 @@
 #'
 #' @importFrom shiny NS tagList
 
-data <- readRDS("inst/app/data/tmp_data.rds") |>
+data <- my_dataset |> 
   dplyr::mutate(
     id = dplyr::row_number(),
     Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>")
-  )
+    )
+
+  # readRDS("data/my_dataset.rda") |>
 
 
 mod_summary_table_ui <- function(id) {
