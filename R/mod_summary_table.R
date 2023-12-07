@@ -8,7 +8,7 @@
 #'
 #' @importFrom shiny NS tagList
 
-data <- my_dataset |> 
+data <- evidence_maps::my_dataset |> 
   dplyr::mutate(
     id = dplyr::row_number(),
     Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>")
@@ -62,7 +62,10 @@ mod_summary_table_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    output$debug <- shiny::renderPrint(reactiveValuesToList(selectedCell))
+    shiny::observe({
+      output$debug <- shiny::renderPrint(as.character(shiny::req(input$evidenceMap_cells_selected)))
+    })
+  
     output$inputValsDebug <- shiny::renderPrint(selectedVars())
     # setup ----
     evidence_map_skeleton <- data |>
@@ -140,13 +143,13 @@ mod_summary_table_server <- function(id) {
 
     # selected cell ----
     shiny::observe({
-      index <- shiny::req(input$evidenceMap_cells_selected)
+     # index <- shiny::req(input$evidenceMap_cells_selected)
 
-      row <- index[[1]]
-      col <- index[[2]] + 1
+      #row <- shiny::req(input$evidenceMap_cells_selected)[[1]]
+      #col <- shiny::req(input$evidenceMap_cells_selected)[[2]] + 1
 
-      selectedCell$row <- evidence_map_data()$Mechanism[row]
-      selectedCell$col <- names(evidence_map_data()[col])
+      selectedCell$row <- evidence_map_data()$Mechanism[shiny::req(input$evidenceMap_cells_selected)[[1]]]
+      selectedCell$col <- names(evidence_map_data()[shiny::req(input$evidenceMap_cells_selected)[[2]] + 1])
     })
 
 
