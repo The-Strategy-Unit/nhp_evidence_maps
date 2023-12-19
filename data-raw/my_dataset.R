@@ -13,7 +13,8 @@ create_sample_data <- function(x){
                                                          '[:alpha:]',
                                                          substring(x,1,1)),
                   Mechanism = rep(c('?', 'Avoid', 'Substitute'), 
-                                  length.out = nrow(tmp_data))
+                                  length.out = nrow(tmp_data)),
+                  Citation = paste('sample_data', `Unique ref no`, Citation)
     )
 }
 
