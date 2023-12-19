@@ -157,6 +157,7 @@ mod_summary_table_server <- function(id) {
 
 
     output$waffle <- shiny::renderPlot({
+      shiny::req(input$evidenceMap_cells_selected)
       filtered_waffle_data <- summary_tab_data() |>
         dplyr::select(Mechanism, `Type of evidence`) |>
         dplyr::filter(Mechanism == selectedCell$row) |>

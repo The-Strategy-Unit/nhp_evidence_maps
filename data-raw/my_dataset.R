@@ -12,9 +12,9 @@ create_sample_data <- function(x){
                   `Unique ref no` = stringr::str_replace(`Unique ref no`,
                                                          '[:alpha:]',
                                                          substring(x,1,1)),
-                  Mechanism = sample(c('?', 'Avoid', 'Substitute'), 
-                                     size = nrow(tmp_data), 
-                                     replace = T)
+                  Mechanism = rep(c('?', 'Avoid', 'Substitute'), 
+                                  length.out = nrow(tmp_data)),
+                  Citation = paste('sample_data', `Unique ref no`, Citation)
     )
 }
 
