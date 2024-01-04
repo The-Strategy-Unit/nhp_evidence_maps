@@ -27,7 +27,9 @@ mod_summary_table_ui <- function(id) {
         stringr::str_sort(unique(data$`Publication year`),
           decreasing = T
         )
-      )
+      ),
+      multiple = T,
+      selected = "All Years"
     ),
     shiny::selectInput(ns("varSelect"),
       label = "Additional Variables",
@@ -66,7 +68,7 @@ mod_summary_table_server <- function(id) {
       output$debug <- shiny::renderPrint(as.character(shiny::req(input$evidenceMap_cells_selected)))
     })
   
-    output$inputValsDebug <- shiny::renderPrint(selectedVars())
+    output$inputValsDebug <- shiny::renderPrint(selectedYear())
     # setup ----
     evidence_map_skeleton <- data |>
       dplyr::select(Mechanism, `Type of evidence`) |>
@@ -84,8 +86,10 @@ mod_summary_table_server <- function(id) {
 
     # dataframe to be used in tab ----
     summary_tab_data <- reactive({
+      req(selectedYear())
       data |>
-        dplyr::filter(`Publication year` == selectedYear() | selectedYear() == "All Years") |>
+        dplyr::filter(`Publication year` %in% selectedYear() | 
+                        selectedYear() == "All Years") |>
         dplyr::select(tidyselect::any_of(c(
           "Mechanism",
           "Type of evidence",
@@ -197,7 +201,7 @@ mod_summary_table_server <- function(id) {
       dplyr::select(-Mechanism, -`Type of evidence`) |>
       DT::renderDT(
         options = list(
-          dom = "t",
+          #dom = "t",
           ordering = F
         ),
         rownames = F,
