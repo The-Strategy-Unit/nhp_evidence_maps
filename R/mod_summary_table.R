@@ -89,7 +89,7 @@ mod_summary_table_server <- function(id) {
       req(selectedYear())
       data |>
         dplyr::filter(`Publication year` %in% selectedYear() | 
-                        selectedYear() == "All Years") |>
+                        "All Years" == selectedYear()) |>
         dplyr::select(tidyselect::any_of(c(
           "Mechanism",
           "Type of evidence",
