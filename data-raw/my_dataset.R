@@ -129,10 +129,6 @@ fn_nest_reviews <- function(start_col, end_col){
   
 }
 
-# bug? for hospital admission outcome, the 
-# outcome_recorded for review R004 is false, but inside the nested df
-# there is data recorded, however the function when run with 
-
 nested_reviews <- purrr::map2(reviews_outcome_idxs$start_col,
                               reviews_outcome_idxs$end_col,
                               fn_nest_reviews) |> 
