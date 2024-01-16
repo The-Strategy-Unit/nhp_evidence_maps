@@ -39,9 +39,7 @@ mod_summary_table_ui <- function(id) {
         "Study design",
         "Effect",
         "Setting",
-        "Demographic",
-        "No variable selected" = "no_value"
-      ),
+        "Demographic"),
       selected = "",
       multiple = T
     ),
@@ -93,7 +91,8 @@ mod_summary_table_server <- function(id) {
         dplyr::select(tidyselect::any_of(c(
           "Mechanism",
           "Type of evidence",
-          "Citation",
+          "Authors",
+          "Title",
           "Publication year",
           "Link",
           input$varSelect

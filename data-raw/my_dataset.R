@@ -145,6 +145,8 @@ reviews_final <- reviews |>
   dplyr::mutate(evidence_category = "review")
 
 my_dataset <- dplyr::bind_rows(studies_final,
-                        reviews_final) 
+                        reviews_final) |> 
+  dplyr::mutate(`Type of evidence` = stringr::str_to_title(`Type of evidence`))
+  
 
 usethis::use_data(my_dataset, overwrite = TRUE)
