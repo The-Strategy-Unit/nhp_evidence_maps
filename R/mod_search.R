@@ -9,9 +9,16 @@
 #' @importFrom shiny NS tagList 
 #' 
 
-search_data <- readRDS('inst/app/data/tmp_data.rds') |>
-  dplyr::select(Citation, `Publication year`, Link) |>
-  dplyr::group_by(Citation, `Publication year`, Link) |> 
+data <- evidence_maps::my_dataset |> 
+  dplyr::mutate(
+    id = dplyr::row_number(),
+    Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>")
+  )
+
+
+search_data <- evidence_maps::my_dataset |> 
+  dplyr::select(Authors, Title, `Publication year`, Link) |>
+  dplyr::group_by(Authors, Title, `Publication year`, Link) |> 
   dplyr::summarise(tmp = dplyr::n()) |> 
   dplyr::select(-tmp) |>
   dplyr::ungroup() |> 
@@ -22,7 +29,7 @@ search_data <- readRDS('inst/app/data/tmp_data.rds') |>
   
   
 data_string_split <- search_data |>
-  dplyr::mutate(search_string = paste(Citation, `Publication year`)) |>
+  dplyr::mutate(search_string = paste(Authors, Title, `Publication year`)) |>
   dplyr::select(id, search_string) |>
   tidyr::separate_longer_delim(search_string, delim = " ") |>
   dplyr::mutate(search_string = stringr::str_remove_all(search_string,"[^A-Za-z]"),
