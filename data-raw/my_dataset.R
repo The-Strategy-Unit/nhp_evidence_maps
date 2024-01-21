@@ -146,7 +146,11 @@ reviews_final <- reviews |>
 
 my_dataset <- dplyr::bind_rows(studies_final,
                         reviews_final) |> 
-  dplyr::mutate(`Type of evidence` = stringr::str_to_title(`Type of evidence`))
+  dplyr::mutate(`Type of evidence` = stringr::str_to_title(`Type of evidence`)) |> 
+  dplyr::mutate(
+    id = dplyr::row_number(),
+    Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>")) |> 
+  dplyr::rename(typeOfEvidence = `Type of evidence`)
   
 
 usethis::use_data(my_dataset, overwrite = TRUE)

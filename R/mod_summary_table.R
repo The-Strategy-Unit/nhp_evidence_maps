@@ -7,15 +7,10 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-
-data <- evidence_maps::my_dataset |> 
-  dplyr::mutate(
-    id = dplyr::row_number(),
-    Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>")
-    )
-
-  # readRDS("data/my_dataset.rda") |>
-
+  
+map_choices <- c("Type of evidence" = "typeOfEvidence",
+                 "Mechanism",
+                 "Outcome" = "outcome")
 
 mod_summary_table_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -24,7 +19,7 @@ mod_summary_table_ui <- function(id) {
       label = "Select Year",
       choices = c(
         "All Years",
-        stringr::str_sort(unique(data$`Publication year`),
+        stringr::str_sort(unique(evidence_maps::my_dataset$`Publication year`),
           decreasing = T
         )
       ),
@@ -43,6 +38,18 @@ mod_summary_table_ui <- function(id) {
       selected = "",
       multiple = T
     ),
+    shiny::fluidRow(shiny::selectInput(ns("mapRow"), 
+                                       "Row category",
+                                       choices = map_choices,
+                                       selected = "Mechanism"
+                                       ),
+                    shiny::selectInput(ns("mapCol"),
+                                       "Column category",
+                                       choices = map_choices,
+                                       selected = "Type of evidence"
+                                       )
+                    ),
+                                       
     shiny::verbatimTextOutput(ns("debug")),
     shiny::verbatimTextOutput(ns("debugVarSelect")),
     shiny::verbatimTextOutput(ns("inputValsDebug")),
@@ -62,35 +69,72 @@ mod_summary_table_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
+    data <- shiny::reactive({
+      shiny::req(map_row_cat(), map_col_cat())
+      if( "outcome" %in% 
+          c(map_row_cat(), map_col_cat())){
+      evidence_maps::my_dataset |> 
+        dplyr::filter(outcome_recorded == T)
+      }else({
+        evidence_maps::my_dataset})
+    })
+      
+    
     shiny::observe({
-      output$debug <- shiny::renderPrint(as.character(shiny::req(input$evidenceMap_cells_selected)))
+      output$debug <- shiny::renderPrint(c(map_row_cat(), map_col_cat()))
     })
   
+    # row and col map ----
+    
+    ## reactives ----
+    map_row_cat <- shiny::reactive(input$mapRow) 
+    map_col_cat <- shiny::reactive(input$mapCol)
+    
+    ## update selectinput ---- 
+    
+    shiny::observe({
+      shiny::updateSelectInput(session, 
+                               "mapRow",
+                               choices = 
+                                 map_choices[map_choices != map_col_cat()],
+                               selected = map_row_cat()
+                               )
+      shiny::updateSelectInput(session, 
+                               "mapCol",
+                               choices = 
+                                 map_choices[map_choices != map_row_cat()],
+                               selected = map_col_cat()
+      )
+    })
+    
+    
+    
     output$inputValsDebug <- shiny::renderPrint(selectedYear())
     # setup ----
-    evidence_map_skeleton <- data |>
-      dplyr::select(Mechanism, `Type of evidence`) |>
-      dplyr::group_by(Mechanism, `Type of evidence`) |>
-      dplyr::summarise(count = dplyr::n()) |>
-      dplyr::select(-count)
-
-    selectedYear <- reactive(input$yearSelect)
-    selectedVars <- reactive(input$varSelect)
+    evidence_map_skeleton <- reactive({
+      req(map_row_cat(), map_col_cat())
+     data() |> 
+       dplyr::count(.data[[map_row_cat()]], .data[[map_col_cat()]])|>
+      dplyr::select(-n)
+    })
+    selectedYear <- shiny::reactive(input$yearSelect)
+    selectedVars <- shiny::reactive(input$varSelect)
 
     selectedCell <- reactiveValues(
       row = 1,
       col = 1
     )
 
-    # dataframe to be used in tab ----
+    # summary_tab_data ----
+    #dataframe to be used in tab 
     summary_tab_data <- reactive({
       req(selectedYear())
-      data |>
+      data() |>
         dplyr::filter(`Publication year` %in% selectedYear() | 
                         "All Years" %in% selectedYear()) |>
         dplyr::select(tidyselect::any_of(c(
-          "Mechanism",
-          "Type of evidence",
+          map_row_cat(),
+          map_col_cat(),
           "Authors",
           "Title",
           "Publication year",
@@ -114,16 +158,18 @@ mod_summary_table_server <- function(id) {
 
     # evidence map ----
     evidence_map_data <- reactive({
-      evidence_map_skeleton |>
+      evidence_map_skeleton() |>
         dplyr::left_join(
           summary_tab_data() |>
-            dplyr::select(Mechanism, `Type of evidence`) |>
-            dplyr::group_by(Mechanism, `Type of evidence`) |>
-            dplyr::summarise(count = dplyr::n())
+            dplyr::count(.data[[map_row_cat()]], 
+                         .data[[map_col_cat()]])
+            # dplyr::select(map_row_cat(), map_col_cat()) |>
+            # dplyr::group_by(map_row_cat(), map_col_cat()) |>
+            # dplyr::summarise(count = dplyr::n())
         ) |>
         tidyr::pivot_wider(
-          names_from = `Type of evidence`,
-          values_from = count
+          names_from = map_col_cat(),
+          values_from = n
         ) |>
         dplyr::ungroup() |>
         dplyr::mutate(id = dplyr::row_number())
@@ -151,22 +197,23 @@ mod_summary_table_server <- function(id) {
       #row <- shiny::req(input$evidenceMap_cells_selected)[[1]]
       #col <- shiny::req(input$evidenceMap_cells_selected)[[2]] + 1
 
-      selectedCell$row <- evidence_map_data()$Mechanism[shiny::req(input$evidenceMap_cells_selected)[[1]]]
+      selectedCell$row <- evidence_map_data()[[map_row_cat()]][shiny::req(input$evidenceMap_cells_selected)[[1]]]
       selectedCell$col <- names(evidence_map_data()[shiny::req(input$evidenceMap_cells_selected)[[2]] + 1])
     })
 
 
-    # waffle ----
+    # # waffle ----
 
 
     output$waffle <- shiny::renderPlot({
       shiny::req(input$evidenceMap_cells_selected)
+      
+      group_val <- map_col_cat()
+      
       filtered_waffle_data <- summary_tab_data() |>
-        dplyr::select(Mechanism, `Type of evidence`) |>
-        dplyr::filter(Mechanism == selectedCell$row) |>
-        ggwaffle::waffle_iron(
-          ggwaffle::aes_d(group = "Type of evidence")
-        ) |>
+        dplyr::select(map_row_cat(), map_col_cat()) |>
+        dplyr::filter(.data[[map_row_cat()]] == selectedCell$row) |>
+        ggwaffle::waffle_iron(mapping = paste0(map_col_cat()))|>
         dplyr::mutate(selected = ifelse(group == selectedCell$col, T, F))
 
       shiny::req(filtered_waffle_data)
@@ -191,13 +238,13 @@ mod_summary_table_server <- function(id) {
         ggplot2::guides(fill = ggplot2::guide_legend(nrow = 2, byrow = T))
     })
 
-
+    # 
     output$selectedTable <- summary_tab_data() |>
       dplyr::filter(
-        Mechanism == selectedCell$row,
-        `Type of evidence` == selectedCell$col
+        .data[[map_row_cat()]] == selectedCell$row,
+        .data[[map_col_cat()]] == selectedCell$col
       ) |>
-      dplyr::select(-Mechanism, -`Type of evidence`) |>
+      dplyr::select(-map_row_cat(), -map_col_cat()) |>
       DT::renderDT(
         options = list(
           #dom = "t",
