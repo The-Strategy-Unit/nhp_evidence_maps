@@ -15,26 +15,22 @@ app_ui <- function(request) {
     bs4Dash::sidebarMenu(
       id = "sidebarMenu",
       bs4Dash::menuItem(
-        "Taxonomy",
-        tabName = "tab_taxonomy"),
-      
-      bs4Dash::menuItem(
         "Summary Table",
         tabName = "tab_summary"),
       
       bs4Dash::menuItem(
         "Evidence Search",
         tabName = "tab_search"
+      ),
+      
+      bs4Dash::menuItem(
+        "Taxonomy",
+        tabName = "tab_taxonomy")
       )
-  )
-  )
+    )
   
   body <- bs4Dash::dashboardBody(
     bs4Dash::tabItems(
-      bs4Dash::tabItem(
-        tabName = "tab_taxonomy",
-        mod_taxonomy_ui("taxonomy_1")
-        ),
       bs4Dash::tabItem(
         tabName = "tab_summary",
         mod_summary_table_ui("summary_table")
@@ -42,7 +38,11 @@ app_ui <- function(request) {
       bs4Dash::tabItem(
         tabName = "tab_search",
         mod_search_ui("search")
-      )
+        ),
+      bs4Dash::tabItem(
+        tabName = "tab_taxonomy",
+        mod_taxonomy_ui("taxonomy_1")
+        )
     )
   )
   
