@@ -1,7 +1,7 @@
 ## code to prepare `my_dataset` dataset goes here
 
 # Studies ----
-studies <- readxl::read_xlsx("data-raw/evidence_map_data.xlsx",
+studies <- readxl::read_xlsx("data-raw/tmp_data.xlsx",
                              sheet = "Studies") |> 
   dplyr::rename("Link" = `Link to full text`,
                 "Setting" = `...19`,
@@ -74,7 +74,7 @@ studies_final <- studies |>
   
 # Reviews ---- 
 
-reviews <- readxl::read_xlsx("data-raw/evidence_map_data.xlsx",
+reviews <- readxl::read_xlsx("data-raw/tmp_data.xlsx",
                              sheet = "Reviews") |> 
   dplyr::rename("Link" = `Link to full text`,
                 "Setting" = `...19`,
