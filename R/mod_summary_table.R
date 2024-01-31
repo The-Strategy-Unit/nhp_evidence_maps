@@ -205,37 +205,38 @@ mod_summary_table_server <- function(id) {
     # # waffle ----
 
 
-    output$waffle <- shiny::renderPlot({
+    output$waffle <- shiny::renderPlot(res = 120, 
+                                       {
       shiny::req(input$evidenceMap_cells_selected)
       
       group_val <- map_col_cat()
       
       filtered_waffle_data <- summary_tab_data() |>
         dplyr::select(map_row_cat(), map_col_cat()) |>
-        dplyr::filter(.data[[map_row_cat()]] == selectedCell$row) |>
-        ggwaffle::waffle_iron(mapping = paste0(map_col_cat()))|>
-        dplyr::mutate(selected = ifelse(group == selectedCell$col, T, F))
+        dplyr::filter(.data[[map_row_cat()]] == selectedCell$row) 
 
       shiny::req(filtered_waffle_data)
       filtered_waffle_data |>
+        ggwaffle::waffle_iron(mapping = paste0(map_col_cat()),
+                              rows = floor(sqrt(nrow(filtered_waffle_data))))|>
+        dplyr::mutate(selected = ifelse(group == selectedCell$col, T, F)) |> 
         ggplot2::ggplot(ggplot2::aes(x, y, fill = group)) +
         ggwaffle::geom_waffle() +
         ggwaffle::geom_waffle(
-          data = filtered_waffle_data |>
-            dplyr::filter(selected == T),
+          data = ~dplyr::filter(.x, 
+                                selected == T),
           colour = "blue",
-          show.legend = F
-        ) +
+          show.legend = F) +
         ggplot2::coord_equal() +
         viridis::scale_fill_viridis(discrete = T) +
         ggwaffle::theme_waffle() +
         ggplot2::theme(
           axis.title.x = ggplot2::element_blank(),
           axis.title.y = ggplot2::element_blank(),
-          legend.position = "top",
+          legend.position = "bottom",
           legend.title = ggplot2::element_blank()
         ) +
-        ggplot2::guides(fill = ggplot2::guide_legend(nrow = 2, byrow = T))
+        ggplot2::guides(fill = ggplot2::guide_legend(nrow = 1, byrow = T))
     })
 
     # 
