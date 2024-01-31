@@ -21,9 +21,13 @@ app_ui <- function(request) {
       bs4Dash::menuItem(
         "Evidence Search",
         tabName = "tab_search"
+      ),
+      
+      bs4Dash::menuItem(
+        "Taxonomy",
+        tabName = "tab_taxonomy")
       )
-  )
-  )
+    )
   
   body <- bs4Dash::dashboardBody(
     bs4Dash::tabItems(
@@ -34,7 +38,11 @@ app_ui <- function(request) {
       bs4Dash::tabItem(
         tabName = "tab_search",
         mod_search_ui("search")
-      )
+        ),
+      bs4Dash::tabItem(
+        tabName = "tab_taxonomy",
+        mod_taxonomy_ui("taxonomy_1")
+        )
     )
   )
   
