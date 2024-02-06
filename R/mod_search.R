@@ -9,11 +9,7 @@
 #' @importFrom shiny NS tagList 
 #' 
 
-data <- evidence_maps::my_dataset |> 
-  dplyr::mutate(
-    id = dplyr::row_number(),
-    Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>")
-  )
+data <- evidence_maps::my_dataset
 
 
 search_data <- evidence_maps::my_dataset |> 
@@ -23,8 +19,7 @@ search_data <- evidence_maps::my_dataset |>
   dplyr::select(-tmp) |>
   dplyr::ungroup() |> 
   dplyr::mutate(
-    id = dplyr::row_number(),
-    Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>"))
+    id = dplyr::row_number())
     
   
   
