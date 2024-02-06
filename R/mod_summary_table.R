@@ -249,8 +249,9 @@ mod_summary_table_server <- function(id) {
       DT::renderDT(
         options = list(
           #dom = "t",
-          ordering = F
-        ),
+          #ordering = F
+          ),
+        filter = "top",
         rownames = F,
         escape = F,
         selection = "none"
