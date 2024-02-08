@@ -86,9 +86,10 @@ mod_search_server <- function(id){
       
       output$search_table <- DT::renderDT(d,
                                           options = list(
-                                            dom = "t",
-                                            ordering = F
+                                            #dom = "t",
+                                            #ordering = F
                                           ),
+                                          filter = "top",
                                           escape = F,
                                           rownames = F,
                                           selection = "none")
@@ -105,6 +106,7 @@ mod_search_server <- function(id){
                                             
                                             ordering = T
                                           ),
+                                          filter = "top",
                                           escape = F,
                                           rownames = F,
                                           selection = "none")
