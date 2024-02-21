@@ -152,7 +152,8 @@ my_dataset <- dplyr::bind_rows(studies_final,
   dplyr::mutate(
     id = dplyr::row_number(),
     Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>")) |> 
-  dplyr::rename(typeOfEvidence = `Type of evidence`)
+  dplyr::rename(typeOfEvidence = `Type of evidence`,
+                "Study design" = evidence_category)
   
 
 usethis::use_data(my_dataset, overwrite = TRUE)

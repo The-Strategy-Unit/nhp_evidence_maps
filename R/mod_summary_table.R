@@ -33,8 +33,9 @@ mod_summary_table_ui <- function(id) {
         "Country of study",
         "Study design",
         "Effect",
-        "Setting",
-        "Demographic"),
+        "Setting"#,
+        #"Demographic"
+        ),
       selected = "",
       multiple = T
     ),
