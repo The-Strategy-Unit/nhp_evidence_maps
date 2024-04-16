@@ -148,7 +148,16 @@ mod_summary_table_server <- function(id) {
             stringr::str_to_sentence
           )
         ) |> 
-        dplyr::distinct()
+        dplyr::mutate(
+          dplyr::across(
+            tidyselect::any_of(c("Country of study",
+                                 "Study design",
+                                 "Effect",
+                                 "Setting")),
+            forcats::as_factor
+          )
+        ) |> 
+         dplyr::distinct()
     })
 
 
