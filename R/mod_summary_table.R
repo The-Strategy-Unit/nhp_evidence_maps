@@ -33,8 +33,8 @@ mod_summary_table_ui <- function(id) {
         "Country of study",
         "Study design",
         "Effect",
-        "Setting"#,
-        #"Demographic"
+        "Setting",
+        "Population"
         ),
       selected = "",
       multiple = T
@@ -142,6 +142,12 @@ mod_summary_table_server <- function(id) {
           "Link",
           input$varSelect
         ))) |>
+        dplyr::mutate(
+          dplyr::across(
+            tidyselect::any_of(input$varSelect),
+            stringr::str_to_sentence
+          )
+        ) |> 
         dplyr::distinct()
     })
 
