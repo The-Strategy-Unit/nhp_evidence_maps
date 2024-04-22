@@ -15,51 +15,67 @@ map_choices <- c("Type of evidence" = "typeOfEvidence",
 mod_summary_table_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::fluidPage(
-    shiny::selectInput(ns("yearSelect"),
-      label = "Select Year",
-      choices = c(
-        "All Years",
-        stringr::str_sort(unique(evidence_maps::my_dataset$`Publication year`),
-          decreasing = T
-        )
-      ),
-      multiple = T,
-      selected = "All Years"
-    ),
-    shiny::selectInput(ns("varSelect"),
-      label = "Additional Variables",
-      choices = c(
-        "Choose additional variables" = "",
-        "Country of study",
-        "Study design",
-        "Effect",
-        "Setting",
-        "Population"
+    bs4Dash::box(title = "Choose evidence map parameters",
+                 width = 12,
+                 collapsible = F,
+      shiny::fluidRow(
+        shiny::column(width = 3,
+                      shiny::selectInput(ns("yearSelect"),
+                                         label = "Select Year",
+                                         choices = c(
+                                           "All Years",
+                                           stringr::str_sort(unique(evidence_maps::my_dataset$`Publication year`),
+                                                             decreasing = T
+                                           )
+                                         ),
+                                         multiple = T,
+                                         selected = "All Years"
+                      )
         ),
-      selected = "",
-      multiple = T
+        shiny::column(width = 3,
+                      shiny::selectInput(ns("varSelect"),
+                                         label = "Additional Variables",
+                                         choices = c(
+                                           "Choose additional variables" = "",
+                                           "Country of study",
+                                           "Study design",
+                                           "Effect",
+                                           "Setting",
+                                           "Population"),
+                                         selected = "",
+                                         multiple = T
+                      )
+        ),
+        
+        shiny::column(width = 3, 
+                      shiny::selectInput(ns("mapRow"), 
+                                         "Row category",
+                                         choices = map_choices,
+                                         selected = "Mechanism"
+                      )
+        ),
+        shiny::column(width = 3,
+                      shiny::selectInput(ns("mapCol"),
+                                         "Column category",
+                                         choices = map_choices,
+                                         selected = "Type of evidence"
+                      )
+        )
+      )
     ),
-    shiny::fluidRow(shiny::selectInput(ns("mapRow"), 
-                                       "Row category",
-                                       choices = map_choices,
-                                       selected = "Mechanism"
-                                       ),
-                    shiny::selectInput(ns("mapCol"),
-                                       "Column category",
-                                       choices = map_choices,
-                                       selected = "Type of evidence"
-                                       )
-                    ),
-                                       
-    shiny::verbatimTextOutput(ns("debug")),
-    shiny::verbatimTextOutput(ns("debugVarSelect")),
-    shiny::verbatimTextOutput(ns("inputValsDebug")),
+    bs4Dash::box(title = "Evidence map (click a cell and scroll down to see the actual evidence  
+                 below)",
+                 width = 12,
+
     shiny::fluidRow(
       column(width = 8, DT::DTOutput(ns("evidenceMap"))),
       column(width = 4, shiny::plotOutput(ns("waffle")))
+    )
     ),
-    DT::DTOutput(ns("debugData")),
-    DT::DTOutput(ns("selectedTable"))
+    bs4Dash::box(title = "Evidence that you have selected from the map",
+                 width = 12, 
+                 DT::DTOutput(ns("selectedTable"))
+    )
   )
 }
 
@@ -79,12 +95,8 @@ mod_summary_table_server <- function(id) {
       }else({
         evidence_maps::my_dataset})
     })
-      
     
-    shiny::observe({
-      output$debug <- shiny::renderPrint(c(map_row_cat(), map_col_cat()))
-    })
-  
+   
     # row and col map ----
     
     ## reactives ----
@@ -109,8 +121,6 @@ mod_summary_table_server <- function(id) {
     })
     
     
-    
-    output$inputValsDebug <- shiny::renderPrint(selectedYear())
     # setup ----
     evidence_map_skeleton <- reactive({
       req(map_row_cat(), map_col_cat())
@@ -221,7 +231,7 @@ mod_summary_table_server <- function(id) {
     # # waffle ----
 
 
-    output$waffle <- shiny::renderPlot(res = 120, 
+    output$waffle <- shiny::renderPlot(res = 80, 
                                        {
       shiny::req(input$evidenceMap_cells_selected)
       
@@ -241,7 +251,7 @@ mod_summary_table_server <- function(id) {
         ggwaffle::geom_waffle(
           data = ~dplyr::filter(.x, 
                                 selected == T),
-          colour = "blue",
+          colour = "black",
           show.legend = F) +
         ggplot2::coord_equal() +
         viridis::scale_fill_viridis(discrete = T) +
@@ -250,9 +260,14 @@ mod_summary_table_server <- function(id) {
           axis.title.x = ggplot2::element_blank(),
           axis.title.y = ggplot2::element_blank(),
           legend.position = "bottom",
-          legend.title = ggplot2::element_blank()
+          legend.title = ggplot2::element_blank(),
+          legend.text = ggplot2::element_text(size = 14),
+          panel.border = ggplot2::element_rect(colour = "grey70",
+                                               fill = NA)
         ) +
-        ggplot2::guides(fill = ggplot2::guide_legend(nrow = 1, byrow = T))
+        ggplot2::guides(fill = ggplot2::guide_legend(ncol = 1
+                                                     ))
+        
     })
 
     # 

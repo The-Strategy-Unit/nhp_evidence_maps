@@ -37,16 +37,30 @@ mod_search_ui <- function(id){
   
   
   shiny::tagList(
+    bs4Dash::box(width = 12,
+                 title = "Search all evidence",
+                 shiny::fluidRow(
+                 shiny::column(width = 6,
     shiny::numericInput(ns('dist'),
                       label = 'Search string distance',
-                     value = 1),
+                     value = 1)
+    ),
+    
+    shiny::column(width = 6,
     shinyWidgets::searchInput(ns("search"),
                               label = "Search Evidence",
                               placeholder = "Search..",
                               btnSearch = icon("magnifying-glass"),
-                              btnReset = icon("xmark")),
-    shiny::verbatimTextOutput(ns('debug'), placeholder = T),
+                              btnReset = icon("xmark"))
+    )
+                 )
+    ),
+    #shiny::verbatimTextOutput(ns('debug'), placeholder = T),
+    bs4Dash::box(width = 12,
+                 collapsible = F,
+                 headerBorder = F,
     DT::DTOutput(ns("search_table"))
+    )
     
   )
 }
@@ -60,7 +74,7 @@ mod_search_server <- function(id){
     
     dist_val <- reactive(input$dist)
     
-    output$debug <- shiny::renderPrint(dist_val())
+    #output$debug <- shiny::renderPrint(dist_val())
 
     observe({input$search_search
 
