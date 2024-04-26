@@ -20,6 +20,7 @@ Imports:
     janitor,
     maps,
     pins,
+    pkgload,
     purrr,
     shiny (>= 1.7.4),
     shinyjs,
