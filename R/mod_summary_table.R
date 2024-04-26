@@ -95,8 +95,7 @@ mod_summary_table_server <- function(id) {
       }else({
         evidence_maps::my_dataset})
     })
-    
-   
+
     # row and col map ----
     
     ## reactives ----
@@ -135,6 +134,8 @@ mod_summary_table_server <- function(id) {
       row = 1,
       col = 1
     )
+    
+   
 
     # summary_tab_data ----
     #dataframe to be used in tab 
@@ -218,38 +219,47 @@ mod_summary_table_server <- function(id) {
 
     # selected cell ----
     shiny::observe({
-     # index <- shiny::req(input$evidenceMap_cells_selected)
+      shiny::req(input$evidenceMap_cells_selected)
 
-      #row <- shiny::req(input$evidenceMap_cells_selected)[[1]]
-      #col <- shiny::req(input$evidenceMap_cells_selected)[[2]] + 1
-
-      selectedCell$row <- evidence_map_data()[[map_row_cat()]][shiny::req(input$evidenceMap_cells_selected)[[1]]]
-      selectedCell$col <- names(evidence_map_data()[shiny::req(input$evidenceMap_cells_selected)[[2]] + 1])
+      rowNum <- input$evidenceMap_cells_selected[[1]]
+      
+      
+      colNum <- input$evidenceMap_cells_selected[[2]] + 1 
+      
+      
+      selectedCell$row <- evidence_map_data()[[map_row_cat()]][rowNum]
+      selectedCell$col <- names(evidence_map_data())[colNum]
     })
 
+    shiny::observe({
+      shiny::req(input$mapRow, input$mapCol)
+      selectedCell$row <- NULL
+      selectedCell$col <- NULL
+    })
 
     # # waffle ----
+
 
 
     output$waffle <- shiny::renderPlot(res = 80, 
                                        {
       shiny::req(input$evidenceMap_cells_selected)
-      
+
       group_val <- map_col_cat()
-      
+
       filtered_waffle_data <- summary_tab_data() |>
         dplyr::select(map_row_cat(), map_col_cat()) |>
-        dplyr::filter(.data[[map_row_cat()]] == selectedCell$row) 
+        dplyr::filter(.data[[map_row_cat()]] == selectedCell$row)
 
       shiny::req(filtered_waffle_data)
       filtered_waffle_data |>
         ggwaffle::waffle_iron(mapping = paste0(map_col_cat()),
                               rows = floor(sqrt(nrow(filtered_waffle_data))))|>
-        dplyr::mutate(selected = ifelse(group == selectedCell$col, T, F)) |> 
+        dplyr::mutate(selected = ifelse(group == selectedCell$col, T, F)) |>
         ggplot2::ggplot(ggplot2::aes(x, y, fill = group)) +
         ggwaffle::geom_waffle() +
         ggwaffle::geom_waffle(
-          data = ~dplyr::filter(.x, 
+          data = ~dplyr::filter(.x,
                                 selected == T),
           colour = "black",
           show.legend = F) +
@@ -269,15 +279,16 @@ mod_summary_table_server <- function(id) {
                                                      ))
         
     })
-
-    # 
-    output$selectedTable <- summary_tab_data() |>
-      dplyr::filter(
-        .data[[map_row_cat()]] == selectedCell$row,
-        .data[[map_col_cat()]] == selectedCell$col
-      ) |>
-      dplyr::select(-map_row_cat(), -map_col_cat()) |>
-      DT::renderDT(
+   
+    #
+    output$selectedTable <- DT::renderDT({
+      shiny::req(input$evidenceMap_cells_selected)
+      summary_tab_data() |>
+        dplyr::filter(
+          .data[[map_row_cat()]] == selectedCell$row,
+          .data[[map_col_cat()]] == selectedCell$col
+        ) |>
+        dplyr::select(-map_row_cat(), -map_col_cat())},
         options = list(
           #dom = "t",
           #ordering = F
