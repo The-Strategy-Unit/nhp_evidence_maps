@@ -1,7 +1,7 @@
 ## code to prepare `my_dataset` dataset goes here
 
 board <- pins::board_connect()
-pin_list <- pins::pin_read(board, "matt.dray/nhp_evidence_map")
+pin_list <- pins::pin_read(board, "matt.dray/nhp_evidence_map_data")
 
 # Studies ----
 studies <- pin_list[["Studies"]] |> 
