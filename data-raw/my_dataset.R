@@ -1,10 +1,10 @@
 ## code to prepare `my_dataset` dataset goes here
 
-filepath <- "data-raw/first_release_data_v1.xlsx"
+board <- pins::board_connect()
+pin_list <- pins::pin_read(board, "matt.dray/nhp_evidence_map")
 
 # Studies ----
-studies <- readxl::read_xlsx(filepath,
-                             sheet = "Studies") |> 
+studies <- pin_list[["Studies"]] |> 
   dplyr::rename("Link" = `Link to full text`,
                 "Setting" = `...19`,
                 "Effect" = `Effect\r\n(statistical rather than clinical significance?)`) |> 
@@ -77,8 +77,7 @@ studies_final <- studies |>
   
 # Reviews ---- 
 
-reviews <- readxl::read_xlsx(filepath,
-                             sheet = "Reviews") |> 
+reviews <- pin_list[["Reviews"]] |> 
   dplyr::rename("Link" = `Link to full text`,
                 "Setting" = `...19`,
                 "Effect" = `Effect\r\n(statistical rather than clinical significance?)`) |> 
