@@ -157,7 +157,6 @@ my_dataset <- dplyr::bind_rows(studies_final,
   dplyr::rename(typeOfEvidence = `Type of evidence`#,
                 #"Study design" = evidence_category
                 )
-
   
 
 usethis::use_data(my_dataset, overwrite = TRUE)

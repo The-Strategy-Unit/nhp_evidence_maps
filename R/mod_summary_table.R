@@ -41,7 +41,7 @@ mod_summary_table_ui <- function(id) {
                                            "Study design",
                                            "Effect",
                                            "Setting",
-                                           "Demographic"),
+                                           "Population"),
                                          selected = "",
                                          multiple = T
                       )
@@ -66,6 +66,7 @@ mod_summary_table_ui <- function(id) {
     bs4Dash::box(title = "Evidence map (click a cell and scroll down to see the actual evidence  
                  below)",
                  width = 12,
+
     shiny::fluidRow(
       column(width = 8, DT::DTOutput(ns("evidenceMap"))),
       column(width = 4, shiny::plotOutput(ns("waffle")))
@@ -152,7 +153,22 @@ mod_summary_table_server <- function(id) {
           "Link",
           input$varSelect
         ))) |>
-        dplyr::distinct()
+        dplyr::mutate(
+          dplyr::across(
+            tidyselect::any_of(input$varSelect),
+            stringr::str_to_sentence
+          )
+        ) |> 
+        dplyr::mutate(
+          dplyr::across(
+            tidyselect::any_of(c("Country of study",
+                                 "Study design",
+                                 "Effect",
+                                 "Setting")),
+            forcats::as_factor
+          )
+        ) |> 
+         dplyr::distinct()
     })
 
 
