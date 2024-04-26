@@ -1,6 +1,6 @@
 ## code to prepare `my_dataset` dataset goes here
 
-filepath <- "data-raw/tmp_data_feb24.xlsx"
+filepath <- "data-raw/first_release_data_v1.xlsx"
 
 # Studies ----
 studies <- readxl::read_xlsx(filepath,
@@ -17,6 +17,7 @@ studies <- readxl::read_xlsx(filepath,
                 `Country of study`,
                 `Link`,
                 `Type of evidence`,
+                `Study design`,
                 `Mechanism`,
                 `Population`,
                 `Setting`,
@@ -71,8 +72,8 @@ studies_final <- studies |>
   dplyr::select(-c(`Outcomes reported`:`...47`)) |> 
   dplyr::left_join(nested_studies, 
                    by = "Unique ref no",
-                   relationship = "many-to-many") |> 
-  dplyr::mutate(evidence_category = "study")
+                   relationship = "many-to-many") #|> 
+  #dplyr::mutate(evidence_category = "study")
   
 # Reviews ---- 
 
@@ -90,6 +91,7 @@ reviews <- readxl::read_xlsx(filepath,
                 `Country of study`,
                 `Link`,
                 `Type of evidence`,
+                `Study design`,
                 `Mechanism`,
                 `Population`,
                 `Setting`,
@@ -143,8 +145,8 @@ reviews_final <- reviews |>
   dplyr::select(-c(`Outcomes reported`:`...46`)) |> 
   dplyr::left_join(nested_studies, 
                    by = "Unique ref no",
-                   relationship = "many-to-many") |> 
-  dplyr::mutate(evidence_category = "review")
+                   relationship = "many-to-many") #|> 
+  #dplyr::mutate(evidence_category = "review")
 
 my_dataset <- dplyr::bind_rows(studies_final,
                         reviews_final) |> 
@@ -152,7 +154,10 @@ my_dataset <- dplyr::bind_rows(studies_final,
   dplyr::mutate(
     id = dplyr::row_number(),
     Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>")) |> 
-  dplyr::rename(typeOfEvidence = `Type of evidence`)
+  dplyr::rename(typeOfEvidence = `Type of evidence`#,
+                #"Study design" = evidence_category
+                )
+
   
 
 usethis::use_data(my_dataset, overwrite = TRUE)
