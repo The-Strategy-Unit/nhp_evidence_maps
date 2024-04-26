@@ -13,6 +13,8 @@ Imports:
     ggplot2,
     ggwaffle,
     golem (>= 0.4.0),
+    pins,
+    pkgload,
     purrr,
     shiny (>= 1.7.4),
     shinyjs,
