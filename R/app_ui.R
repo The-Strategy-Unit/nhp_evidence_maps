@@ -4,6 +4,9 @@
 #'     DO NOT REMOVE.
 #' @import shiny
 #' @noRd
+
+source("./data-raw/my_dataset.R")
+
 app_ui <- function(request) {
   
   header <- bs4Dash::dashboardHeader(title = 'Evidence Maps')
