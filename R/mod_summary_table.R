@@ -22,14 +22,8 @@ mod_summary_table_ui <- function(id) {
         shiny::column(width = 3,
                       shiny::selectInput(ns("yearSelect"),
                                          label = "Select Year",
-                                         choices = c(
-                                           "All Years",
-                                           stringr::str_sort(unique(my_dataset$`Publication year`),
-                                                             decreasing = T
-                                           )
-                                         ),
-                                         multiple = T,
-                                         selected = "All Years"
+                                         choices = NULL,
+                                         multiple = T
                       )
         ),
         shiny::column(width = 3,
@@ -86,6 +80,17 @@ mod_summary_table_server <- function(id, my_dataset) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
+    shiny::updateSelectInput(session,
+                             "yearSelect",
+                             choices = c(
+                               "All Years",
+                               stringr::str_sort(unique(my_dataset$`Publication year`),
+                                                 decreasing = T)
+                               ),
+                             selected = "All Years"
+                             )
+    
+    
     data <- shiny::reactive({
       shiny::req(map_row_cat(), map_col_cat())
       if( "outcome" %in% 
