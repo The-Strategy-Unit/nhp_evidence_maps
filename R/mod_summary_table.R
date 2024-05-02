@@ -194,10 +194,11 @@ mod_summary_table_server <- function(id, my_dataset) {
         dplyr::left_join(
           summary_tab_data() |>
             dplyr::count(.data[[map_row_cat()]], 
-                         .data[[map_col_cat()]])
+                         .data[[map_col_cat()]]),
             # dplyr::select(map_row_cat(), map_col_cat()) |>
             # dplyr::group_by(map_row_cat(), map_col_cat()) |>
             # dplyr::summarise(count = dplyr::n())
+          by = dplyr::join_by(Mechanism, typeOfEvidence)
         ) |>
         tidyr::pivot_wider(
           names_from = map_col_cat(),
