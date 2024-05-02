@@ -24,7 +24,7 @@ mod_summary_table_ui <- function(id) {
                                          label = "Select Year",
                                          choices = c(
                                            "All Years",
-                                           stringr::str_sort(unique(evidence_maps::my_dataset$`Publication year`),
+                                           stringr::str_sort(unique(my_dataset$`Publication year`),
                                                              decreasing = T
                                            )
                                          ),
@@ -82,7 +82,7 @@ mod_summary_table_ui <- function(id) {
 #' summary_table Server Functions
 #'
 #' @noRd
-mod_summary_table_server <- function(id) {
+mod_summary_table_server <- function(id, my_dataset) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -90,10 +90,10 @@ mod_summary_table_server <- function(id) {
       shiny::req(map_row_cat(), map_col_cat())
       if( "outcome" %in% 
           c(map_row_cat(), map_col_cat())){
-      evidence_maps::my_dataset |> 
+      my_dataset |> 
         dplyr::filter(outcome_recorded == T)
       }else({
-        evidence_maps::my_dataset})
+        my_dataset})
     })
 
     # row and col map ----

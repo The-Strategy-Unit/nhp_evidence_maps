@@ -9,8 +9,7 @@
 #' @importFrom shiny NS tagList 
 #' 
 
-board <- pins::board_connect()
-pin_list <- pins::pin_read(board, "matt.dray/nhp_evidence_map_data")
+pin_list <- get_pinned_data()
 
 # taxonomy_raw <- readxl::read_xlsx("data-raw/evidence_map_data.xlsx",
 #                                   sheet = "Taxonomy")
