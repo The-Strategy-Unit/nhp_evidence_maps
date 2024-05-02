@@ -9,29 +9,6 @@
 #' @importFrom shiny NS tagList 
 #' 
 
-data <- evidence_maps::my_dataset
-
-
-search_data <- evidence_maps::my_dataset |> 
-  dplyr::select(Authors, Title, `Publication year`, Link) |>
-  dplyr::group_by(Authors, Title, `Publication year`, Link) |> 
-  dplyr::summarise(tmp = dplyr::n()) |> 
-  dplyr::select(-tmp) |>
-  dplyr::ungroup() |> 
-  dplyr::mutate(
-    id = dplyr::row_number())
-    
-  
-  
-data_string_split <- search_data |>
-  dplyr::mutate(search_string = paste(Authors, Title, `Publication year`)) |>
-  dplyr::select(id, search_string) |>
-  tidyr::separate_longer_delim(search_string, delim = " ") |>
-  dplyr::mutate(search_string = stringr::str_remove_all(search_string,"[^A-Za-z]"),
-                search_string = stringr::str_to_lower(search_string)) |>
-  dplyr::filter(!search_string == "")
-
-
 mod_search_ui <- function(id){
   ns <- shiny::NS(id)
   
@@ -68,9 +45,37 @@ mod_search_ui <- function(id){
 #' search Server Functions
 #'
 #' @noRd 
-mod_search_server <- function(id){
+mod_search_server <- function(id, my_dataset){
   shiny::moduleServer(id, function(input, output, session){
     ns <- session$ns
+    
+    
+    
+    data <- my_dataset
+    
+    
+    search_data <- my_dataset |> 
+      dplyr::select(Authors, Title, `Publication year`, Link) |>
+      dplyr::group_by(Authors, Title, `Publication year`, Link) |> 
+      dplyr::summarise(tmp = dplyr::n()) |> 
+      dplyr::select(-tmp) |>
+      dplyr::ungroup() |> 
+      dplyr::mutate(
+        id = dplyr::row_number())
+    
+    
+    
+    data_string_split <- search_data |>
+      dplyr::mutate(search_string = paste(Authors, Title, `Publication year`)) |>
+      dplyr::select(id, search_string) |>
+      tidyr::separate_longer_delim(search_string, delim = " ") |>
+      dplyr::mutate(search_string = stringr::str_remove_all(search_string,"[^A-Za-z]"),
+                    search_string = stringr::str_to_lower(search_string)) |>
+      dplyr::filter(!search_string == "")
+    
+    
+    
+    
     
     dist_val <- reactive(input$dist)
     
