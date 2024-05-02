@@ -26,23 +26,23 @@ app_ui <- function(request) {
       bs4Dash::menuItem(
         "Taxonomy",
         tabName = "tab_taxonomy")
-      )
     )
+  )
   
   body <- bs4Dash::dashboardBody(
     bs4Dash::tabItems(
       bs4Dash::tabItem(
         tabName = "tab_summary",
         mod_summary_table_ui("summary_table")
-        ),
+      ),
       bs4Dash::tabItem(
         tabName = "tab_search",
         mod_search_ui("search")
-        ),
+      ),
       bs4Dash::tabItem(
         tabName = "tab_taxonomy",
         mod_taxonomy_ui("taxonomy_1")
-        )
+      )
     )
   )
   
@@ -53,11 +53,13 @@ app_ui <- function(request) {
     # Your application UI logic
     shinyjs::useShinyjs(),
     bs4Dash::dashboardPage(
+      help = NULL,
+      dark = NULL,
       header,
       sidebar,
       body
     ) 
-    )
+  )
   
 }
 
@@ -75,7 +77,7 @@ golem_add_external_resources <- function() {
     "www",
     app_sys("app/www")
   )
-
+  
   tags$head(
     favicon(),
     bundle_resources(
