@@ -14,18 +14,9 @@ app_ui <- function(request) {
     status = "primary",
     bs4Dash::sidebarMenu(
       id = "sidebarMenu",
-      bs4Dash::menuItem(
-        "Summary Table",
-        tabName = "tab_summary"),
-      
-      bs4Dash::menuItem(
-        "Evidence Search",
-        tabName = "tab_search"
-      ),
-      
-      bs4Dash::menuItem(
-        "Taxonomy",
-        tabName = "tab_taxonomy")
+      bs4Dash::menuItem("Summary Table", tabName = "tab_summary"),
+      bs4Dash::menuItem("Evidence Search", tabName = "tab_search"),
+      bs4Dash::menuItem("Taxonomy", tabName = "tab_taxonomy")
     )
   )
   
@@ -46,7 +37,6 @@ app_ui <- function(request) {
     )
   )
   
-  
   shiny::tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
@@ -62,7 +52,6 @@ app_ui <- function(request) {
   )
   
 }
-
 
 #' Add external Resources to the Application
 #'

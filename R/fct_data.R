@@ -6,9 +6,19 @@
 #'
 #' @noRd
 
-get_data <- function(pin_name = "matt.dray/nhp_evidence_map_data") {
+# Fetch pin (a list where each element is a sheet from the workbook)
+get_pinned_data <- function(pin_name = "matt.dray/nhp_evidence_map_data") {
   
-  pinned_data <- get_pinned_data(pin_name)
+  board <- pins::board_connect()
+  pin_exists <- pins::pin_exists(board, pin_name)
+  
+  if (!pin_exists) stop(glue::glue("The pin {pin_name} could not be found"))
+  if (pin_exists) pins::pin_read(board, pin_name)
+  
+}
+
+# Extract and wrangle studies and reports data from pin
+get_evidence_data <- function(pinned_data = get_pinned_data()) {
   
   wrangled_studies <- wrangle_studies(pinned_data)
   wrangled_reviews <- wrangle_reviews(pinned_data)
@@ -21,14 +31,10 @@ get_data <- function(pin_name = "matt.dray/nhp_evidence_map_data") {
     ) |> 
     dplyr::mutate(
       id = dplyr::row_number(),
-      Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>")) |> 
+      Link = paste0("<a href='", Link, "' target = 'new'>", "Link", "</a>")
+    ) |> 
     dplyr::rename(typeOfEvidence = `Type of evidence`)
   
-}
-
-get_pinned_data <- function(pin_name = "matt.dray/nhp_evidence_map_data") {
-  board <- pins::board_connect()
-  pins::pin_read(board, pin_name)
 }
 
 wrangle_studies <- function(pinned_data) {
