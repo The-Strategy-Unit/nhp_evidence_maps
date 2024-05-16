@@ -10,14 +10,12 @@
 mod_about_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    shiny::fluidRow(
-      shiny::h1("NHP Evidence Map"),
-      bs4Dash::box(
-        title = "About",
-        width = 12,
-        collapsible = FALSE,
-        shiny::htmlOutput(ns("about_html"))
-      )
+    shiny::h1("NHP Evidence Map"),
+    bs4Dash::box(
+      title = "About",
+      width = 12,
+      collapsible = FALSE,
+      shiny::htmlOutput(ns("about_html"))
     )
   )
 }
