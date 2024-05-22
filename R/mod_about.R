@@ -22,17 +22,7 @@ mod_about_ui <- function(id) {
         style = "height: 150px;"
       ),
       shiny::HTML("<br/><br/>"),
-      shiny::htmlOutput(ns("about_html"))
+      md_file_to_html("app", "text", "about.md")
     )
   )
-}
-
-#' about Server Functions
-#'
-#' @noRd 
-mod_about_server <- function(id, dat) {
-  moduleServer(id, function(input, output, session) {
-    ns <- session$ns
-    output$about_html <- renderUI({ wrangle_about_text(dat) })
-  })
 }

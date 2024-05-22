@@ -10,7 +10,6 @@ app_server <- function(input, output, session) {
   about_raw_data <- pinned_data[["About this map"]]
   evidence_data <- get_evidence_data(pinned_data)
 
-  mod_about_server("about", about_raw_data)
   mod_summary_table_server("summary_table", evidence_data)
   mod_search_server("search", evidence_data)
   mod_taxonomy_server("taxonomy", about_raw_data)
