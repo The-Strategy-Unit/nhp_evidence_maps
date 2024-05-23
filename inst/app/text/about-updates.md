@@ -1,0 +1,1 @@
+The map is updated monthly. Release 2 will be scoped during Summer 2024 with a release date yet to be confirmed.
