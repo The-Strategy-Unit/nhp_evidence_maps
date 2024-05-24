@@ -6,7 +6,7 @@
 #' @noRd
 app_ui <- function(request) {
   
-  header <- bs4Dash::dashboardHeader(title = 'Evidence Maps')
+  header <- bs4Dash::dashboardHeader(title = "NHP Evidence Map")
   
   sidebar <- bs4Dash::dashboardSidebar(
     fixed = TRUE,
@@ -14,14 +14,19 @@ app_ui <- function(request) {
     status = "primary",
     bs4Dash::sidebarMenu(
       id = "sidebarMenu",
-      bs4Dash::menuItem("Summary Table", tabName = "tab_summary"),
-      bs4Dash::menuItem("Evidence Search", tabName = "tab_search"),
+      bs4Dash::menuItem("About", tabName = "tab_about"),
+      bs4Dash::menuItem("Summarise Evidence", tabName = "tab_summary"),
+      bs4Dash::menuItem("Search Evidence", tabName = "tab_search"),
       bs4Dash::menuItem("Taxonomy", tabName = "tab_taxonomy")
     )
   )
   
   body <- bs4Dash::dashboardBody(
     bs4Dash::tabItems(
+      bs4Dash::tabItem(
+        tabName = "tab_about",
+        mod_about_ui("about")
+      ),
       bs4Dash::tabItem(
         tabName = "tab_summary",
         mod_summary_table_ui("summary_table")
@@ -32,7 +37,7 @@ app_ui <- function(request) {
       ),
       bs4Dash::tabItem(
         tabName = "tab_taxonomy",
-        mod_taxonomy_ui("taxonomy_1")
+        mod_taxonomy_ui("taxonomy")
       )
     )
   )
