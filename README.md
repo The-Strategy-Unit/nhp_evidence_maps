@@ -33,9 +33,9 @@ board <- pins::board_connect()
 
 # Check existing pin
 pin_name <- "matt.dray/nhp_evidence_map_data"
-board |> pins::pin_exists(pin_name)
-board |> pins::pin_read(pin_name) |> str(1)
-board |> pins::pin_versions(pin_name)
+board |> pins::pin_exists(pin_name)  # logical
+board |> pins::pin_read(pin_name) |> str(1)  # list structure
+board |> pins::pin_versions(pin_name)  # active and past versions
 
 # Read spreadsheet into list
 
@@ -48,9 +48,17 @@ sheets_list <- purrr::map(
 ) |> 
   purrr::set_names(sheet_names)
 
-# Write to pin
-pins::pin_write(sheets_list, pin_name)
+# Write to pin with custom 'notes' metadata
+board |> pins::pin_write(
+  sheets_list,
+  pin_name,
+  metadata = list(notes = "A reminder of changes/reason for upload."),
+  type = "rds"  # otherwise it may autodetect json
+)
+
+# Confirm upload
 board |> pins::pin_versions(pin_name)  # should see new version
+pins::pin_meta(board, pin_name)[["user"]][["notes"]]  # custom notes metadata
 ```
 
 ### Deploy
