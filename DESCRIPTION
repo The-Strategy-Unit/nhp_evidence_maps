@@ -1,9 +1,12 @@
-Package: nhp_evidence_maps
-Title: NHP Evidence Maps
+Package: nhp.evidence.maps
+Title: NHP Models of Care Evidence Map
 Version: 0.1.2
 Authors@R: c(
     person("Ozayr", "Mohammed", , "ozayr.mohammed@nhs.net", role = c("cre", "aut")),
-    person("Matt", "Dray", , "matt.dray@nhs.net", role = "ctb")
+    person("Matt", "Dray", , "matt.dray@nhs.net", role = "ctb"),
+    person("Chris", "Beeley", role = "ctb"),
+    person("Rhian", "Davies", role = "ctb"),
+    person("Zoë", "Turner", role = "ctb")
   )
 Description: A Shiny app to explore the NHP Models of Care evidence map.
 License: MIT + file LICENSE
@@ -17,18 +20,21 @@ Imports:
     forcats,
     ggplot2,
     ggwaffle,
+    glue,
     golem (>= 0.4.0),
     gt,
     janitor,
-    maps,
+    markdown,
     pins,
     pkgload,
     purrr,
+    readxl,
     shiny (>= 1.7.4),
     shinyjs,
     shinyWidgets,
     stringdist,
     stringr,
+    tibble,
     tidyr,
     tidyselect,
     viridis
