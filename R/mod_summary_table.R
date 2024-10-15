@@ -40,7 +40,6 @@ mod_summary_table_ui <- function(id) {
                 "Choose additional variables" = "",
                 "Country of study",
                 "Study design",
-                "Effect",
                 "Setting",
                 "Population"
               ),
@@ -172,6 +171,7 @@ mod_summary_table_server <- function(id, dat) {
           "Authors",
           "Title",
           "Publication year",
+          "Effect",
           "Link",
           input$varSelect
         ))) |>
