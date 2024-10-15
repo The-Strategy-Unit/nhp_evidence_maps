@@ -1,9 +1,11 @@
-Package: evidence_maps
-Title: Evidence Maps
-Version: 0.1.0
-Authors@R: 
-    person("Ozayr", "Mohammed", , "ozayr.mohammed@nhs.net", role = c("cre", "aut"))
-Description: PKG_DESC.
+Package: nhp_evidence_maps
+Title: NHP Evidence Maps
+Version: 0.1.2
+Authors@R: c(
+    person("Ozayr", "Mohammed", , "ozayr.mohammed@nhs.net", role = c("cre", "aut")),
+    person("Matt", "Dray", , "matt.dray@nhs.net", role = "ctb")
+  )
+Description: A Shiny app to explore the NHP Models of Care evidence map.
 License: MIT + file LICENSE
 Depends: 
     R (>= 2.10)
