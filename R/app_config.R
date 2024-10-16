@@ -9,7 +9,8 @@
 #'
 #' @noRd
 app_sys <- function(...) {
-  system.file(..., package = "nhp_evidence_maps")
+  system.file(..., package = "nhp.evidence.maps")
+
 }
 
 
