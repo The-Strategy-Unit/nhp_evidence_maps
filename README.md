@@ -8,7 +8,8 @@ Evidence maps are a way of visually displaying the body of literature in a speci
 
 This shiny application will allow for the interactive exploration of the literature through tools such as evidence maps and text searching. 
 
-The application currently uses a dataset containing information about each evidence, such as author, publication date, and study characteristics. This information is then used to create an evidence map of all of the evidence as well as a free text search in order to search the evidence in the dataset by their title or author.
+The application currently uses a dataset containing information about each evidence, such as author, publication date, and study characteristics.
+This information is then used to create an evidence map of all of the evidence as well as a free text search in order to search the evidence in the dataset by their title or author.
 
 Future plans for this application are:
 
@@ -63,7 +64,7 @@ pins::pin_meta(board, pin_name)[["user"]][["notes"]]  # custom notes metadata
 
 ### Deploy
 
-Run the `deployApp()` call in `dev/03_deploy.R`. If the `appID` is not picked up from `rsconnect::deployments()`, then you'll have to write it in manually. It can be found in the Settings > Info menu after you log in to Posit Connect and view the app (under 'Content ID').
+Run the `dev/03_deploy.R` script to deploy to Posit Connect.
 
 You can read more about [deploying to Posit Connect](https://docs.posit.co/connect/how-to/publish-shiny-app/) and [deploying a Golem app](https://engineering-shiny.org/deploy.html).
 
