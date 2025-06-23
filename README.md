@@ -11,20 +11,16 @@ This shiny application will allow for the interactive exploration of the literat
 The application currently uses a dataset containing information about each evidence, such as author, publication date, and study characteristics.
 This information is then used to create an evidence map of all of the evidence as well as a free text search in order to search the evidence in the dataset by their title or author.
 
-Future plans for this application are:
-
-- To extract keywords from literature within the dataset
-- To allow the user to pull additional literature into the application
-- To allow the user to download literature within the dataset
-- To have an application that can be repurposed to work with evidence from a range of different fields.
-
 ## Developer notes
 
 <details><summary>Click for detail.</summary>
 
 ### Update pinned data
 
-The underlying data for this app can be updated independently of the app. The data is stored as a 'pin' on Posit Connect. The app will read the data from the pin using [{pins}](https://pins.rstudio.com/) when the user reaches the app. You can overwrite the existing pin and it will create a new version; you can see and revert to earlier versions of the pin if needed.
+The underlying data for this app can be updated independently of the app.
+The data is stored as a 'pin' on Posit Connect.
+The app will read the data from the pin using [{pins}](https://pins.rstudio.com/) when the user reaches the app.
+You can overwrite the existing pin and it will create a new version; you can see and revert to earlier versions of the pin if needed.
 
 This is some illustrative code to update the pinned data:
 
@@ -64,8 +60,12 @@ pins::pin_meta(board, pin_name)[["user"]][["notes"]]  # custom notes metadata
 
 ### Deploy
 
-Run the `dev/03_deploy.R` script to deploy to Posit Connect.
+Create a `.Renviron` in the project root containing the keys found in `.Renviron.example`.
+This will allow you to connect to the board on the server so you can fetch the pinned data.
+Ask a member of the Data Science team if you don't know what values you need.
+If you're working in RStudio and connected to the correct server, you won't need to do this.
 
+Run the `dev/03_deploy.R` script to deploy to Posit Connect.
 You can read more about [deploying to Posit Connect](https://docs.posit.co/connect/how-to/publish-shiny-app/) and [deploying a Golem app](https://engineering-shiny.org/deploy.html).
 
 </details>
